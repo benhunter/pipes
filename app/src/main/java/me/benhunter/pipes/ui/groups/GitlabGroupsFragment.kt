@@ -1,19 +1,17 @@
 package me.benhunter.pipes.ui.groups
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import me.benhunter.pipes.databinding.FragmentGroupsBinding
-import me.benhunter.pipes.ui.account.AccountViewModel
 
-class GroupsFragment : Fragment() {
+class GitlabGroupsFragment : Fragment() {
 
-    private val homeViewModel: GroupsViewModel by activityViewModels()
+    private val gitlabGroupsViewModel: GitlabGroupsViewModel by activityViewModels()
 
     private var _binding: FragmentGroupsBinding? = null
 
@@ -28,16 +26,29 @@ class GroupsFragment : Fragment() {
     ): View {
         _binding = FragmentGroupsBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
         return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val textView: TextView = binding.textGroups
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        activity?.getPreferences(Context.MODE_PRIVATE)?.let {
+            gitlabGroupsViewModel.loadAccount(it)
         }
+
+        val gitlabGroupsAdapter = GitlabGroupsAdapter(layoutInflater, ::navToGitlabGroup)
+        binding.gitlabGroupsRecyclerview.adapter = gitlabGroupsAdapter
+
+        gitlabGroupsViewModel.observeGitlabGroups().observe(this.viewLifecycleOwner) {
+            gitlabGroupsAdapter.submitList(it)
+        }
+
+        gitlabGroupsViewModel.fetchGroups()
+    }
+
+    private fun navToGitlabGroup(groupId: String) {
+        TODO("Not yet implemented")
     }
 
     override fun onDestroyView() {

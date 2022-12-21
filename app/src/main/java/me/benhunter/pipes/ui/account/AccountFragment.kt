@@ -34,9 +34,9 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val preferences = activity?.getPreferences(Context.MODE_PRIVATE)
-        accountViewModel.setSharedPreferences(preferences)
-        accountViewModel.loadAccountFromSharedPreferences()
+        activity?.getPreferences(Context.MODE_PRIVATE)?.let {
+            accountViewModel.loadAccount(it)
+        }
 
         accountViewModel.account().observe(viewLifecycleOwner) {
             binding.textInputServer.editText?.setText(it.server)

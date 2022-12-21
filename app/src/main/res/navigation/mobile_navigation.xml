@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_groups"
-        android:name="me.benhunter.pipes.ui.groups.GroupsFragment"
+        android:name="me.benhunter.pipes.ui.groups.GitlabGroupsFragment"
         android:label="Groups"
         tools:layout="@layout/fragment_groups" />
 
