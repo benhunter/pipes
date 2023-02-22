@@ -2,12 +2,15 @@ package me.benhunter.pipes.ui.groups
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import me.benhunter.pipes.databinding.FragmentGroupsBinding
+import java.net.UnknownHostException
 
 class GitlabGroupsFragment : Fragment() {
 
@@ -44,7 +47,16 @@ class GitlabGroupsFragment : Fragment() {
             gitlabGroupsAdapter.submitList(it)
         }
 
-        gitlabGroupsViewModel.fetchGroups()
+        try {
+            gitlabGroupsViewModel.fetchGroups()
+        } catch (e: Exception) {
+            Log.d(javaClass.simpleName, "fetchGroups Exception: $e")
+        } catch (e: UnknownHostException){
+            val text = "Error: couldn't connect to server"
+            Toast
+                .makeText(context, text, Toast.LENGTH_LONG)
+                .show()
+        }
     }
 
     private fun navToGitlabGroup(groupId: String) {

@@ -1,13 +1,15 @@
 package me.benhunter.pipes.ui.groups
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import me.benhunter.pipes.Account
-import me.benhunter.pipes.GitlabApi
-import me.benhunter.pipes.GitlabGroup
-import me.benhunter.pipes.Preferences
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.benhunter.pipes.*
+import java.net.UnknownHostException
 
 class GitlabGroupsViewModel : ViewModel() {
 
@@ -17,18 +19,27 @@ class GitlabGroupsViewModel : ViewModel() {
 
     fun loadAccount(sharedPreferences: SharedPreferences) {
         preferences = Preferences(sharedPreferences)
-        account.postValue(preferences.loadAccount())
+//        account.postValue(preferences.loadAccount())
+        account.value = preferences.loadAccount()
     }
 
     fun observeGitlabGroups(): LiveData<List<GitlabGroup>> {
         return gitlabGroups
     }
 
-    fun fetchGroups() {
+    fun fetchGroups() = viewModelScope.launch(
+        context = viewModelScope.coroutineContext + Dispatchers.IO
+    ) {
         if (account.value == null) throw RuntimeException("Can't fetch Gitlab groups until account is set")
 
-        val gitlabApi = GitlabApi.create(account.value!!.server)
+        val gitlabApi = GitlabApi.create(account.value!!)
+        val gitlabRepository = GitlabRepository(gitlabApi)
 
-        TODO("Not yet implemented")
+        try {
+            gitlabGroups.postValue(gitlabRepository.fetchGroups())
+        } catch (e: Exception) {
+            Log.d(javaClass.simpleName, "fetchGroups Exception: $e")
+            if (e is UnknownHostException) throw e
+        }
     }
 }
